@@ -1,0 +1,14 @@
+import {strict as assert} from 'node:assert';
+import {initial,perft,legalMoves,play,outcome} from '../public/rules.js';
+for(const [depth,expected] of [[1,20],[2,400],[3,8902]])assert.equal(perft(initial(),depth),expected,`perft depth ${depth}`);
+let s=initial();assert.throws(()=>play(s,{from:52,to:28}),/Illegal/);
+for(const [from,to] of [[52,36],[8,16],[36,28],[11,27]])s=play(s,{from,to});
+assert(legalMoves(s).some(m=>m.from===28&&m.to===19),'en passant');
+console.log('Rules pass: 20 / 400 / 8902 and illegal move / en passant');
+let mate=initial();for(const [from,to] of [[53,45],[12,28],[54,38],[3,39]])mate=play(mate,{from,to});
+assert.equal(outcome(mate),'checkmate','fool’s mate');
+const castle={board:'....k...................................................R...K..R'.split(''),turn:'w',castle:'KQ',ep:-1};
+assert(legalMoves(castle).some(m=>m.from===60&&m.to===62),'king-side castle');
+assert(legalMoves(castle).some(m=>m.from===60&&m.to===58),'queen-side castle');
+const promote={board:'....k...P...................................................K...'.split(''),turn:'w',castle:'',ep:-1};
+assert.equal(legalMoves(promote).filter(m=>m.from===8&&m.to===0).length,4,'four promotion choices');
